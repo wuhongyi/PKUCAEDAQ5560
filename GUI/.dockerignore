@@ -1,0 +1,7 @@
+build*
+!build_linux.sh
+tests/smoke_*
+tests/verification_*
+dist
+**/__pycache__
+docs/*.png

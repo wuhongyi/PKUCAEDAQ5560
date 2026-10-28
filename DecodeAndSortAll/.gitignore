@@ -1,0 +1,9 @@
+/build*/
+/DecodeAndSortAll
+/decodeandsort
+/test_decode
+/test_window_sort
+/check_root
+/tests/test_decode_linux
+*.root
+/r5560-sort-*/

@@ -1,0 +1,6 @@
+build*/
+__pycache__/
+*.user
+tests/smoke_*/
+tests/verification_*/
+dist/

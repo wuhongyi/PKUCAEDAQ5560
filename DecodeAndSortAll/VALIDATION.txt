@@ -1,0 +1,70 @@
+R5560 DecodeAndSortAll - validation 2026-10-28
+
+ROLLING WINDOW REVISION (current default)
+Default: 1,000,000,000 ns window; write earliest 90%, retain 10%; LZ4 level 4.
+No intermediate sort files in window mode. External mode remains explicit.
+
+Linux GCC9 tests: original 16714 checks plus 19393 rolling-window checks passed.
+ROOT-linked CLI integration passed with final binary, including late-event error,
+wide-window success, explicit external fallback, equal timestamps, sparse/empty
+inputs, independent DAQ EOF, capacity limit and invalid window parameters.
+
+Same historical acquisition / same Windows host / 256 MiB container capacity:
+18,672,469 events; 597,519,008 input event bytes.
+  Original external sort + ZLIB4: 93.280 s; peak working set 515.25 MiB;
+                                 output 651,868,044 bytes.
+  Rolling window + ZLIB4:        117.306 s; peak working set 287.08 MiB;
+                                 output 651,868,146 bytes.
+  Rolling window + LZ4_4:         82.725 s; peak working set 272.01 MiB;
+                                 output 791,667,926 bytes.
+Final combination: elapsed -11.31%, throughput +12.76%, peak memory -47.21%,
+ROOT size +21.45% in these single-run observations. Do not attribute all gains
+to rolling sorting: the ZLIB rolling observation did not improve elapsed time.
+These measurements are Windows-host examples, not Linux throughput guarantees.
+
+Both rolling outputs compared against the independently checked baseline:
+all 18 branches of all 18,672,469 entries are exactly equal, including double
+energy and baseline, and all bins of 128 histograms match exactly.
+The original ZLIB rolling output also passed independent raw-stream validation.
+The LZ4 output uses unchanged branch types and precision.
+
+Large +/- timing-offset test correctly rejected insufficient retention at the
+default window; a 2e12 ns window succeeded, with 32601 decoded / 340 filtered /
+32261 output events and independent per-entry ROOT checks passing.
+
+Local detailed evidence: build-window-benchmark/baseline.json, window.json,
+window-lz4.json, comparison.json, tree-equivalence.log, lz4-tree-equivalence.log.
+Validation products and acquisition data are excluded from source archives.
+
+ORIGINAL IMPLEMENTATION VALIDATION (retained historical context)
+
+Linux core: WSL Ubuntu 20.04, GCC 9, C++17 -O2 -Wall -Wextra -Wpedantic.
+16714 assertions passed: binary layout and malformed inputs; energy/baseline;
+reader buffering; global sorting; duplicate retention; bounded multi-pass merge.
+
+ROOT integration: Windows x64, MSVC 2022, CERN ROOT 6.26.14.
+The full ROOT writer was compiled and executed on Windows; the Linux ROOT-linked
+application has not been compiled here. Linux build files and the standard C++17
+decoder/sorter are supplied; ROOT must already be installed on the user's Linux.
+
+Small saved GUI run: 32601 events, 1 MiB sort buffer. Every output record checked
+independently against raw bytes, including fields, order and energy/baseline.
+Checker does not link the production Reader/Sort implementation and uses an
+independent exp/pow form of the energy formula.
+
+Historical physical acquisition: 18672469 events, 597519008 event payload bytes,
+four DAQs, 16 MiB sort buffer, multi-pass merge. Full raw-record hash sum/xor,
+global ordering, independent energy/baseline aggregate checks, 128 histograms,
+metadata and complete-run/DMA counts passed. No current hardware was accessed.
+
+Parameter test: signed shifts -1000000000000 ns and +123456789 ns; an energy
+gate removed 340 events. Sorted and unsorted outputs each contained 32261
+events, checked record by record with expected ordering, fields and histograms.
+
+CLI integration: normal/incomplete runs, missing/duplicate/mixed inputs,
+different sessions with the same run number, malformed events, count mismatch,
+invalid parameters, offset overflow, no-overwrite and private-temp cleanup.
+All checks passed; failed conversions did not publish a final ROOT file.
+
+Local validation outputs remain under build-windows/ and are excluded from
+the source distribution. tests/check_root.cc can reproduce ROOT comparisons.

@@ -1,0 +1,5 @@
+# Synthetic example only; no parameter override is active.
+# Connect reads current hardware values. Keep them for an A/B stability test.
+# Only File > Load configured parameters applies the settings files.
+# Optional format: module /ch/first..last/par/PARAMETER value
+# Example (commented): 0 /ch/0..31/par/THRE 80
