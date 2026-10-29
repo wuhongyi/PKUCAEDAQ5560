@@ -4,9 +4,9 @@
 .. Author: Hongyi Wu(吴鸿毅)
 .. Email: wuhongyi@qq.com 
 .. Created: 六 2月  3 21:00:35 2024 (+0800)
-.. Last-Updated: 三 10月 28 21:32:14 2026 (+0800)
+.. Last-Updated: 四 10月 29 16:37:53 2026 (+0800)
 ..           By: Hongyi Wu(吴鸿毅)
-..     Update #: 27
+..     Update #: 29
 .. URL: http://wuhongyi.cn 
 
 =================================
@@ -20,16 +20,14 @@
 
 配置文件放置于 **pars** 文件夹内，
 
-json 格式文件，主要包含模块的 PID 或者 IP 等信息。
+json 格式文件，主要包含模块的 IP 等信息。
 
 
 .. code:: json
 
    {
-   "modules": 3,
-   "connecttype": "eth",
-   "pid": [25480, 25945, 24946],
-   "ip": ["162.105.54.162", "162.105.54.187", "162.105.54.90"],
+   "modules": 4,
+   "ip": ["162.105.54.47", "162.105.54.194", "162.105.54.142", "162.105.54.232"],
     
    "par": "setting.json",
 
@@ -37,7 +35,7 @@ json 格式文件，主要包含模块的 PID 或者 IP 等信息。
     
    }
 
-其中，参数 modules 为系统使用数据采集卡数量，参数 connecttype 为采集卡与获取电脑的连接方式，可填写 “usb” 或者 “eth”。使用 usb 读取，单个模块上限为 280 MB/s，使用网络读取，目前使用的 1G 网络，单个模块的上限为 110 MB/s。如果采用 USB 方式读取， 则参数 pid 生效，依次为系统每个模块的 PID。如果采用网络读取，则参数 ip 生效，依次为系统每个模块 IPV4 的 IP。
+其中，参数 modules 为系统使用数据采集卡数量，参数 ip ，依次为系统每个模块 IPV4 的 IP，不是 Base board 的IP。
    
 
 
@@ -50,10 +48,8 @@ Linux
 
 .. code:: bash
    
-  ./gddaq
-  # 如果出现以下错误，设置以下环境变量
-  # ./gddaq: error while loading shared libraries: libCAEN_FELib.so.0: cannot open shared object file: No such file or directory
-  # export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+  ./gddaq5560
+
 
 
 
@@ -100,36 +96,70 @@ Coming soon
 在弹出的 Basic、Logic、Debug 子界面，当系统为多个模块时通过点击左侧的 “Mod 0”、“Mod 1”、“Mod 2” 等切换标签进行采集模块的切换，切换时会自动读取右边页面中的信息。每个子界面上方有多个标签页，点击该标签即可切换到相应参数配置页面。
 
 
-	   
-由于本程序能够自适应不同的固件，在同一个参数设置标签页，不同的固件中会显示不同的可设置参数。
+
 
 
 
 **基础参数设置**
 
-/_static/img/demobasicsetting.png
+.. image:: /_static/img/demobasicsetting.png
 
-
-	   
-
+- 参数 Enable
+    - 控制通道是否开启
+- 参数 Polarity
+    - 极性选择
+    - 1 为输入正信号，0为输入负信号。
+    - 只要极性设置正确，在 Debug 页面看到的波形为正信号。
+- 参数 Threshold
+    - 快梯形触发滤波的参数
+- 参数 FL
+    - 单位为 8 ns
+    - 参数范围 1-127  
+    - 快梯形触发滤波参数
+- 参数 FL+FG
+    - 单位为 8 ns
+    - 参数范围 1-127
+    - 快梯形触发滤波器参数
+- 参数 BL 
+    - 基线跟踪算法的参数
+    - 参数范围 1-1023
+    - 建议直接设置 1023，参数越低会影响能量分辨
+- 参数 XIA offset
+    - 单位 8 ns
+    - 参数范围 0-255
+    - 由于流水线处理延迟以及触发点在脉冲的上升沿，需要给予一个offset补偿能量梯形计算开始的时间
+- 参数 XIA SL
+    - 单位 8 ns
+    - 参数范围 1-1023  
+    - 能量梯形的上升沿  
+- 参数 XIA SG
+    - 单位 8 ns
+    - 参数范围  1-1023
+    - 能量梯形的平台
+      
+      
 
 **逻辑参数设置**
 
-/_static/img/demologicsettings.png
+.. image:: /_static/img/demologicsettings.png
 
+参数 Start source 选择 External Shared Run(multi-module)，Run input 选择 SYNC 1。这样才能使四个 32 通道的模块同步运行。
+
+
+	   
 
 **实时计数率监视**
 	   
 
-/_static/img/demoonline.png
+.. image:: /_static/img/demoonline.png
 
 
 **波形监视与调试**
 
-/_static/img/demodebugscope.png
+.. image:: /_static/img/demodebugscope.png
 
 
-/_static/img/demodebugpha.png
+
 	   
 
 
